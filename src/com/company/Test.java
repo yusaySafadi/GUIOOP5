@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Test {
     public static ArrayList<String> data;
     public void generate(Gui gui){
-        generateFromData(gui);
+        generateFromData(gui);//tesz
     }
     public static void main(String[] args){
         //Gui gui = new Gui(new Test(), 25, 10);
