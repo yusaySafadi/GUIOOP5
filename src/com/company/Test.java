@@ -2,17 +2,59 @@ package com.company;
 
 import gui.Gui;
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class Test {
+    public static ArrayList<String> data;
     public void generate(Gui gui){
-        contrapoints(gui);
+        generateFromData(gui);
     }
     public static void main(String[] args){
-        Gui gui = new Gui(new Test(), 9, 9);
-        gui.start();
+        //Gui gui = new Gui(new Test(), 25, 10);
+        //gui.start();
+        datei();
     }
+    public static void generateFromData(Gui gui){
 
+
+        for(String line : data){
+
+            String[] lineArray = line.split(",");
+            int xCoordynate = Integer.parseInt(lineArray[0]);
+            int yCoordynate = Integer.parseInt(lineArray[1]);
+
+
+
+            float rColor = Float.parseFloat(lineArray[2]);
+            float gColor = Float.parseFloat(lineArray[3]);
+            float bColor = Float.parseFloat(lineArray[4]);
+
+
+
+            if(xCoordynate>= gui.getWidth() || xCoordynate < 0){
+                System.out.printf("x %d is out of bounds", xCoordynate);
+                return;
+
+            }else if(yCoordynate>= gui.getHeight() || yCoordynate < 0){
+                System.out.printf("y %d is out of bounds", yCoordynate);
+                return;
+            } else if(rColor>1.0 || gColor >1.0 || bColor > 1.0){
+                System.out.println("Color values are out of bounds (MAX: 1.0)");
+                return;
+            } else if(rColor<0 || gColor < 0 || bColor <0){
+                System.out.println("Color values are out of bounds (MIN:0.0)");
+                return;
+            }
+            Color color = new Color(rColor,gColor,bColor);
+            gui.rectangleAt(xCoordynate,yCoordynate, color);
+        }
+
+    }
     public static void column(Gui gui){
 
         int[] arrayx = new int[gui.getHeight()];
@@ -257,14 +299,18 @@ public class Test {
             System.out.println("Zeilen und Spalten müssen gleich sein");
             return;
         }
+        if(height %2 != 0){
+            System.out.println("FEHLER");
+            return;
+        }
         boolean back = false;
         for(int row = 0; row< height; row++){
 
             for(int col = 0; col<width; col++){
 
-                int[] arrayx = new int[2];
-                int[] arrayy = new int[2];
-                Color[] colors = new Color[2];
+                int[] arrayx = new int[4];
+                int[] arrayy = new int[4];
+                Color[] colors = new Color[4];
 
 
 
@@ -274,7 +320,13 @@ public class Test {
                     arrayy[0] = row;
 
                     arrayx[1] = row;
-                    arrayy[1] = (height-(row));
+                    arrayy[1] = (height-col-1);
+
+                    arrayx[2] = height-col-1;
+                    arrayy[2] = height-row-1;
+
+                    arrayx[3] = width- row -1;
+                    arrayy[3] = col;
 
 
                 } else {
@@ -285,6 +337,12 @@ public class Test {
                     arrayx[1] = row;
                     arrayy[1] = col;
 
+                    arrayx[2] = col;
+                    arrayy[2] = height-row-1;
+
+                    arrayx[3] = width- row -1;
+                    arrayy[3] = height-col - 1;
+
                 }
 
                 //if(col == height){
@@ -292,7 +350,8 @@ public class Test {
                 //}
                 colors[0] = Color.GREEN;
                 colors[1] = Color.RED;
-
+                colors[2] = Color.magenta;
+                colors[3] = Color.BLUE;
                 gui.rectangleAt(arrayx, arrayy, colors);
 
             }
@@ -300,4 +359,59 @@ public class Test {
         }
     }
 
+    public static void datei(){
+       /* try {
+            File file = new File("data.txt");
+            if (file.createNewFile()) {
+                System.out.println("Datei erstellt");
+            } else {
+                System.out.println("Datei existiert bereits");
+            }
+        } catch(IOException e){
+            System.out.println("FEHLER");
+            e.printStackTrace();
+
+        }*/
+
+        data  = new ArrayList<>();
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(
+                    "C:\\Users\\yusay\\IdeaProjects\\GUIOOP5\\src\\data.txt"));
+            String line = reader.readLine().trim();
+            String[] firstLine = line.split(",");
+
+
+            int startWidth = Integer.parseInt(firstLine[0]);
+            int startHeight = Integer.parseInt(firstLine[1]);
+            int startDelay = Integer.parseInt(firstLine[2]);
+
+
+            System.out.println(startWidth);
+            System.out.println(startHeight);
+            System.out.println(startDelay);
+
+            while (line != null) {
+
+                line = reader.readLine();
+                // read next line
+                if(line == null){
+                    break;
+                }
+                data.add(line);
+            }
+            reader.close();
+
+            Gui gui = new Gui(new Test(), startWidth, startHeight);
+            gui.setWaitMs(startDelay);
+            gui.start();
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
